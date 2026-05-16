@@ -1,8 +1,15 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
-import router from "./routes";
 import { logger } from "./lib/logger";
+import healthRouter from "./routes/health";
+import authRouter from "./routes/auth";
+import usersRouter from "./routes/users";
+import postsRouter from "./routes/posts";
+import followsRouter from "./routes/follows";
+import notificationsRouter from "./routes/notifications";
+import feedRouter from "./routes/feed";
+import searchRouter from "./routes/search";
 
 const app: Express = express();
 
@@ -29,6 +36,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", router);
+// Mount each router directly at its full path to avoid Express 5 sub-router
+// path-stripping issues.
+app.use("/api", healthRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/posts", postsRouter);
+app.use("/api/follows", followsRouter);
+app.use("/api/notifications", notificationsRouter);
+app.use("/api/feed", feedRouter);
+app.use("/api/search", searchRouter);
 
 export default app;

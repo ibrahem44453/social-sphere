@@ -5,6 +5,7 @@ import { UserAvatar } from "./UserAvatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreatePost, getListFeedQueryKey, getListFollowingFeedQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface PostComposerProps {
@@ -15,6 +16,7 @@ interface PostComposerProps {
 export function PostComposer({ onPosted, placeholder = "What's on your mind?" }: PostComposerProps) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { toast } = useToast();
   const [content, setContent] = useState("");
   const [focused, setFocused] = useState(false);
 
@@ -31,7 +33,13 @@ export function PostComposer({ onPosted, placeholder = "What's on your mind?" }:
         setFocused(false);
         qc.invalidateQueries({ queryKey: getListFeedQueryKey() });
         qc.invalidateQueries({ queryKey: getListFollowingFeedQueryKey() });
+        toast({ title: "Posted!", description: "Your post is now live." });
         onPosted?.();
+      },
+      onError: (err: unknown) => {
+        const message =
+          err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        toast({ title: "Failed to post", description: message, variant: "destructive" });
       },
     },
   });

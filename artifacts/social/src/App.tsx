@@ -16,8 +16,10 @@ import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/not-found";
 import { setBaseUrl } from "@workspace/api-client-react";
 
+// Generated API URLs already include /api/ prefix (e.g. /api/posts).
+// setBaseUrl prepends to those paths, so we only pass the base path — NOT /api.
 const BASE = (import.meta.env.BASE_URL as string)?.replace(/\/$/, "") || "";
-setBaseUrl(`${BASE}/api`);
+setBaseUrl(BASE);
 
 const queryClient = new QueryClient({
   defaultOptions: {
