@@ -32,6 +32,7 @@ async function buildPost(post: any, currentUserId: string | null) {
     updated_at: post.updated_at,
     likes_count: lc?.count ?? 0,
     comments_count: cc?.count ?? 0,
+    views_count: post.views_count ?? 0,
     is_liked,
     author: author ? {
       id: author.id,

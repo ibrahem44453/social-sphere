@@ -23,6 +23,8 @@ tags:
     description: Notification operations
   - name: feed
     description: Feed operations
+  - name: ai
+    description: AI operations
 paths:
   /healthz:
     get:
@@ -62,7 +64,7 @@ paths:
     get:
       operationId: listUserPosts
       tags: [users]
-      summary: Get posts by user
+      summary: Get posts by user ID
       parameters:
         - name: userId
           in: path
@@ -79,8 +81,8 @@ paths:
 
   /users/{userId}/followers:
     get:
-      operationId: getFollowers
-      tags: [follows]
+      operationId: listUserFollowers
+      tags: [users]
       summary: Get followers of a user
       parameters:
         - name: userId
@@ -100,9 +102,9 @@ paths:
 
   /users/{userId}/following:
     get:
-      operationId: getFollowing
-      tags: [follows]
-      summary: Get users followed by a user
+      operationId: listUserFollowing
+      tags: [users]
+      summary: Get users that a user follows
       parameters:
         - name: userId
           in: path
@@ -121,9 +123,9 @@ paths:
 
   /users/me/profile:
     patch:
-      operationId: updateProfile
+      operationId: updateMyProfile
       tags: [users]
-      summary: Update own profile
+      summary: Update current user profile
       requestBody:
         required: true
         content:
@@ -140,7 +142,7 @@ paths:
 
   /users/me/suggested:
     get:
-      operationId: getSuggestedUsers
+      operationId: listSuggestedUsers
       tags: [users]
       summary: Get suggested users to follow
       responses:
@@ -160,7 +162,7 @@ paths:
       summary: Get global feed
       responses:
         "200":
-          description: Feed posts
+          description: Posts feed
           content:
             application/json:
               schema:
@@ -168,7 +170,7 @@ paths:
     post:
       operationId: createPost
       tags: [posts]
-      summary: Create a new post
+      summary: Create a post
       requestBody:
         required: true
         content:
@@ -187,7 +189,7 @@ paths:
     get:
       operationId: getPost
       tags: [posts]
-      summary: Get a post by ID
+      summary: Get a single post
       parameters:
         - name: postId
           in: path
@@ -239,6 +241,25 @@ paths:
       responses:
         "204":
           description: Deleted
+
+  /posts/{postId}/view:
+    post:
+      operationId: recordPostView
+      tags: [posts]
+      summary: Record a view on a post
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: View recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ViewResult"
 
   /posts/{postId}/like:
     post:
@@ -444,6 +465,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/PostsPage"
 
+  /ai/enhance:
+    post:
+      operationId: enhancePost
+      tags: [ai]
+      summary: Enhance post content using AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiEnhanceInput"
+      responses:
+        "200":
+          description: Enhanced content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiEnhanceResult"
+
 components:
   schemas:
     HealthStatus:
@@ -514,7 +554,7 @@ components:
 
     Post:
       type: object
-      required: [id, content, author, created_at, likes_count, comments_count]
+      required: [id, content, author, created_at, likes_count, comments_count, views_count]
       properties:
         id:
           type: string
@@ -531,6 +571,8 @@ components:
         likes_count:
           type: integer
         comments_count:
+          type: integer
+        views_count:
           type: integer
         is_liked:
           type: boolean
@@ -600,6 +642,15 @@ components:
         likes_count:
           type: integer
 
+    ViewResult:
+      type: object
+      required: [views_count]
+      properties:
+        views_count:
+          type: integer
+        new_view:
+          type: boolean
+
     FollowResult:
       type: object
       required: [following, followers_count]
@@ -657,3 +708,33 @@ components:
       properties:
         count:
           type: integer
+
+    AiEnhanceInput:
+      type: object
+      required: [content, action]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        action:
+          type: string
+          enum:
+            - improve
+            - rewrite
+            - fix_grammar
+            - shorten
+            - expand
+            - hashtags
+            - tone_professional
+            - tone_casual
+            - engaging
+
+    AiEnhanceResult:
+      type: object
+      required: [result]
+      properties:
+        result:
+          type: string
+        action:
+          type: string

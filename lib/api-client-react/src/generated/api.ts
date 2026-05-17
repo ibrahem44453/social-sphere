@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AiEnhanceInput,
+  AiEnhanceResult,
   Comment,
   CommentInput,
   FindUsersParams,
@@ -35,7 +37,8 @@ import type {
   ProfileUpdate,
   UnreadCount,
   UserProfile,
-  UserSummary
+  UserSummary,
+  ViewResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -213,7 +216,7 @@ export const getListUserPostsUrl = (userId: string,) => {
 }
 
 /**
- * @summary Get posts by user
+ * @summary Get posts by user ID
  */
 export const listUserPosts = async (userId: string, options?: RequestInit): Promise<PostsPage> => {
 
@@ -260,7 +263,7 @@ export type ListUserPostsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Get posts by user
+ * @summary Get posts by user ID
  */
 
 export function useListUserPosts<TData = Awaited<ReturnType<typeof listUserPosts>>, TError = ErrorType<unknown>>(
@@ -281,7 +284,7 @@ export function useListUserPosts<TData = Awaited<ReturnType<typeof listUserPosts
 
 
 
-export const getGetFollowersUrl = (userId: string,) => {
+export const getListUserFollowersUrl = (userId: string,) => {
 
 
 
@@ -292,9 +295,9 @@ export const getGetFollowersUrl = (userId: string,) => {
 /**
  * @summary Get followers of a user
  */
-export const getFollowers = async (userId: string, options?: RequestInit): Promise<UserSummary[]> => {
+export const listUserFollowers = async (userId: string, options?: RequestInit): Promise<UserSummary[]> => {
 
-  return customFetch<UserSummary[]>(getGetFollowersUrl(userId),
+  return customFetch<UserSummary[]>(getListUserFollowersUrl(userId),
   {
     ...options,
     method: 'GET'
@@ -307,45 +310,45 @@ export const getFollowers = async (userId: string, options?: RequestInit): Promi
 
 
 
-export const getGetFollowersQueryKey = (userId: string,) => {
+export const getListUserFollowersQueryKey = (userId: string,) => {
     return [
     `/api/users/${userId}/followers`
     ] as const;
     }
 
 
-export const getGetFollowersQueryOptions = <TData = Awaited<ReturnType<typeof getFollowers>>, TError = ErrorType<unknown>>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFollowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListUserFollowersQueryOptions = <TData = Awaited<ReturnType<typeof listUserFollowers>>, TError = ErrorType<unknown>>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserFollowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetFollowersQueryKey(userId);
+  const queryKey =  queryOptions?.queryKey ?? getListUserFollowersQueryKey(userId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFollowers>>> = ({ signal }) => getFollowers(userId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUserFollowers>>> = ({ signal }) => listUserFollowers(userId, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFollowers>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUserFollowers>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetFollowersQueryResult = NonNullable<Awaited<ReturnType<typeof getFollowers>>>
-export type GetFollowersQueryError = ErrorType<unknown>
+export type ListUserFollowersQueryResult = NonNullable<Awaited<ReturnType<typeof listUserFollowers>>>
+export type ListUserFollowersQueryError = ErrorType<unknown>
 
 
 /**
  * @summary Get followers of a user
  */
 
-export function useGetFollowers<TData = Awaited<ReturnType<typeof getFollowers>>, TError = ErrorType<unknown>>(
- userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFollowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useListUserFollowers<TData = Awaited<ReturnType<typeof listUserFollowers>>, TError = ErrorType<unknown>>(
+ userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserFollowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetFollowersQueryOptions(userId,options)
+  const queryOptions = getListUserFollowersQueryOptions(userId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -358,7 +361,7 @@ export function useGetFollowers<TData = Awaited<ReturnType<typeof getFollowers>>
 
 
 
-export const getGetFollowingUrl = (userId: string,) => {
+export const getListUserFollowingUrl = (userId: string,) => {
 
 
 
@@ -367,11 +370,11 @@ export const getGetFollowingUrl = (userId: string,) => {
 }
 
 /**
- * @summary Get users followed by a user
+ * @summary Get users that a user follows
  */
-export const getFollowing = async (userId: string, options?: RequestInit): Promise<UserSummary[]> => {
+export const listUserFollowing = async (userId: string, options?: RequestInit): Promise<UserSummary[]> => {
 
-  return customFetch<UserSummary[]>(getGetFollowingUrl(userId),
+  return customFetch<UserSummary[]>(getListUserFollowingUrl(userId),
   {
     ...options,
     method: 'GET'
@@ -384,45 +387,45 @@ export const getFollowing = async (userId: string, options?: RequestInit): Promi
 
 
 
-export const getGetFollowingQueryKey = (userId: string,) => {
+export const getListUserFollowingQueryKey = (userId: string,) => {
     return [
     `/api/users/${userId}/following`
     ] as const;
     }
 
 
-export const getGetFollowingQueryOptions = <TData = Awaited<ReturnType<typeof getFollowing>>, TError = ErrorType<unknown>>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFollowing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListUserFollowingQueryOptions = <TData = Awaited<ReturnType<typeof listUserFollowing>>, TError = ErrorType<unknown>>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserFollowing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetFollowingQueryKey(userId);
+  const queryKey =  queryOptions?.queryKey ?? getListUserFollowingQueryKey(userId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFollowing>>> = ({ signal }) => getFollowing(userId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUserFollowing>>> = ({ signal }) => listUserFollowing(userId, { signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFollowing>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUserFollowing>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetFollowingQueryResult = NonNullable<Awaited<ReturnType<typeof getFollowing>>>
-export type GetFollowingQueryError = ErrorType<unknown>
+export type ListUserFollowingQueryResult = NonNullable<Awaited<ReturnType<typeof listUserFollowing>>>
+export type ListUserFollowingQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Get users followed by a user
+ * @summary Get users that a user follows
  */
 
-export function useGetFollowing<TData = Awaited<ReturnType<typeof getFollowing>>, TError = ErrorType<unknown>>(
- userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFollowing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useListUserFollowing<TData = Awaited<ReturnType<typeof listUserFollowing>>, TError = ErrorType<unknown>>(
+ userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserFollowing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetFollowingQueryOptions(userId,options)
+  const queryOptions = getListUserFollowingQueryOptions(userId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -435,7 +438,7 @@ export function useGetFollowing<TData = Awaited<ReturnType<typeof getFollowing>>
 
 
 
-export const getUpdateProfileUrl = () => {
+export const getUpdateMyProfileUrl = () => {
 
 
 
@@ -444,11 +447,11 @@ export const getUpdateProfileUrl = () => {
 }
 
 /**
- * @summary Update own profile
+ * @summary Update current user profile
  */
-export const updateProfile = async (profileUpdate: ProfileUpdate, options?: RequestInit): Promise<UserProfile> => {
+export const updateMyProfile = async (profileUpdate: ProfileUpdate, options?: RequestInit): Promise<UserProfile> => {
 
-  return customFetch<UserProfile>(getUpdateProfileUrl(),
+  return customFetch<UserProfile>(getUpdateMyProfileUrl(),
   {
     ...options,
     method: 'PATCH',
@@ -461,11 +464,11 @@ export const updateProfile = async (profileUpdate: ProfileUpdate, options?: Requ
 
 
 
-export const getUpdateProfileMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext> => {
+export const getUpdateMyProfileMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext> => {
 
-const mutationKey = ['updateProfile'];
+const mutationKey = ['updateMyProfile'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -475,10 +478,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProfile>>, {data: BodyType<ProfileUpdate>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMyProfile>>, {data: BodyType<ProfileUpdate>}> = (props) => {
           const {data} = props ?? {};
 
-          return  updateProfile(data,requestOptions)
+          return  updateMyProfile(data,requestOptions)
         }
 
 
@@ -488,25 +491,25 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type UpdateProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateProfile>>>
-    export type UpdateProfileMutationBody = BodyType<ProfileUpdate>
-    export type UpdateProfileMutationError = ErrorType<unknown>
+    export type UpdateMyProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateMyProfile>>>
+    export type UpdateMyProfileMutationBody = BodyType<ProfileUpdate>
+    export type UpdateMyProfileMutationError = ErrorType<unknown>
 
     /**
- * @summary Update own profile
+ * @summary Update current user profile
  */
-export const useUpdateProfile = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useUpdateMyProfile = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMyProfile>>, TError,{data: BodyType<ProfileUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof updateProfile>>,
+        Awaited<ReturnType<typeof updateMyProfile>>,
         TError,
         {data: BodyType<ProfileUpdate>},
         TContext
       > => {
-      return useMutation(getUpdateProfileMutationOptions(options));
+      return useMutation(getUpdateMyProfileMutationOptions(options));
     }
 
-export const getGetSuggestedUsersUrl = () => {
+export const getListSuggestedUsersUrl = () => {
 
 
 
@@ -517,9 +520,9 @@ export const getGetSuggestedUsersUrl = () => {
 /**
  * @summary Get suggested users to follow
  */
-export const getSuggestedUsers = async ( options?: RequestInit): Promise<UserSummary[]> => {
+export const listSuggestedUsers = async ( options?: RequestInit): Promise<UserSummary[]> => {
 
-  return customFetch<UserSummary[]>(getGetSuggestedUsersUrl(),
+  return customFetch<UserSummary[]>(getListSuggestedUsersUrl(),
   {
     ...options,
     method: 'GET'
@@ -532,45 +535,45 @@ export const getSuggestedUsers = async ( options?: RequestInit): Promise<UserSum
 
 
 
-export const getGetSuggestedUsersQueryKey = () => {
+export const getListSuggestedUsersQueryKey = () => {
     return [
     `/api/users/me/suggested`
     ] as const;
     }
 
 
-export const getGetSuggestedUsersQueryOptions = <TData = Awaited<ReturnType<typeof getSuggestedUsers>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSuggestedUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListSuggestedUsersQueryOptions = <TData = Awaited<ReturnType<typeof listSuggestedUsers>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSuggestedUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetSuggestedUsersQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getListSuggestedUsersQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSuggestedUsers>>> = ({ signal }) => getSuggestedUsers({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSuggestedUsers>>> = ({ signal }) => listSuggestedUsers({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSuggestedUsers>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSuggestedUsers>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetSuggestedUsersQueryResult = NonNullable<Awaited<ReturnType<typeof getSuggestedUsers>>>
-export type GetSuggestedUsersQueryError = ErrorType<unknown>
+export type ListSuggestedUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listSuggestedUsers>>>
+export type ListSuggestedUsersQueryError = ErrorType<unknown>
 
 
 /**
  * @summary Get suggested users to follow
  */
 
-export function useGetSuggestedUsers<TData = Awaited<ReturnType<typeof getSuggestedUsers>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSuggestedUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useListSuggestedUsers<TData = Awaited<ReturnType<typeof listSuggestedUsers>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSuggestedUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetSuggestedUsersQueryOptions(options)
+  const queryOptions = getListSuggestedUsersQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -669,7 +672,7 @@ export const getCreatePostUrl = () => {
 }
 
 /**
- * @summary Create a new post
+ * @summary Create a post
  */
 export const createPost = async (postInput: PostInput, options?: RequestInit): Promise<Post> => {
 
@@ -718,7 +721,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreatePostMutationError = ErrorType<unknown>
 
     /**
- * @summary Create a new post
+ * @summary Create a post
  */
 export const useCreatePost = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPost>>, TError,{data: BodyType<PostInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -740,7 +743,7 @@ export const getGetPostUrl = (postId: string,) => {
 }
 
 /**
- * @summary Get a post by ID
+ * @summary Get a single post
  */
 export const getPost = async (postId: string, options?: RequestInit): Promise<Post> => {
 
@@ -787,7 +790,7 @@ export type GetPostQueryError = ErrorType<void>
 
 
 /**
- * @summary Get a post by ID
+ * @summary Get a single post
  */
 
 export function useGetPost<TData = Awaited<ReturnType<typeof getPost>>, TError = ErrorType<void>>(
@@ -948,6 +951,76 @@ export const useDeletePost = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeletePostMutationOptions(options));
+    }
+
+export const getRecordPostViewUrl = (postId: string,) => {
+
+
+
+
+  return `/api/posts/${postId}/view`
+}
+
+/**
+ * @summary Record a view on a post
+ */
+export const recordPostView = async (postId: string, options?: RequestInit): Promise<ViewResult> => {
+
+  return customFetch<ViewResult>(getRecordPostViewUrl(postId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRecordPostViewMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPostView>>, TError,{postId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordPostView>>, TError,{postId: string}, TContext> => {
+
+const mutationKey = ['recordPostView'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordPostView>>, {postId: string}> = (props) => {
+          const {postId} = props ?? {};
+
+          return  recordPostView(postId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordPostViewMutationResult = NonNullable<Awaited<ReturnType<typeof recordPostView>>>
+
+    export type RecordPostViewMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Record a view on a post
+ */
+export const useRecordPostView = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPostView>>, TError,{postId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordPostView>>,
+        TError,
+        {postId: string},
+        TContext
+      > => {
+      return useMutation(getRecordPostViewMutationOptions(options));
     }
 
 export const getLikePostUrl = (postId: string,) => {
@@ -1833,4 +1906,75 @@ export function useListFollowingFeed<TData = Awaited<ReturnType<typeof listFollo
 
 
 
+
+export const getEnhancePostUrl = () => {
+
+
+
+
+  return `/api/ai/enhance`
+}
+
+/**
+ * @summary Enhance post content using AI
+ */
+export const enhancePost = async (aiEnhanceInput: AiEnhanceInput, options?: RequestInit): Promise<AiEnhanceResult> => {
+
+  return customFetch<AiEnhanceResult>(getEnhancePostUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      aiEnhanceInput,)
+  }
+);}
+
+
+
+
+export const getEnhancePostMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof enhancePost>>, TError,{data: BodyType<AiEnhanceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof enhancePost>>, TError,{data: BodyType<AiEnhanceInput>}, TContext> => {
+
+const mutationKey = ['enhancePost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof enhancePost>>, {data: BodyType<AiEnhanceInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  enhancePost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EnhancePostMutationResult = NonNullable<Awaited<ReturnType<typeof enhancePost>>>
+    export type EnhancePostMutationBody = BodyType<AiEnhanceInput>
+    export type EnhancePostMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Enhance post content using AI
+ */
+export const useEnhancePost = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof enhancePost>>, TError,{data: BodyType<AiEnhanceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof enhancePost>>,
+        TError,
+        {data: BodyType<AiEnhanceInput>},
+        TContext
+      > => {
+      return useMutation(getEnhancePostMutationOptions(options));
+    }
 

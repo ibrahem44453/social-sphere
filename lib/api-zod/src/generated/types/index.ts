@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './aiEnhanceInput';
+export * from './aiEnhanceInputAction';
+export * from './aiEnhanceResult';
 export * from './comment';
 export * from './commentInput';
 export * from './findUsersParams';
@@ -24,3 +27,4 @@ export * from './profileUpdate';
 export * from './unreadCount';
 export * from './userProfile';
 export * from './userSummary';
+export * from './viewResult';

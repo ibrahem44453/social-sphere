@@ -39,7 +39,7 @@ export const GetUserProfileResponse = zod.object({
 
 
 /**
- * @summary Get posts by user
+ * @summary Get posts by user ID
  */
 export const ListUserPostsParams = zod.object({
   "userId": zod.coerce.string()
@@ -63,6 +63,7 @@ export const ListUserPostsResponse = zod.object({
   "updated_at": zod.string().nullish(),
   "likes_count": zod.number(),
   "comments_count": zod.number(),
+  "views_count": zod.number(),
   "is_liked": zod.boolean().optional()
 })),
   "next_cursor": zod.string().nullish(),
@@ -73,11 +74,11 @@ export const ListUserPostsResponse = zod.object({
 /**
  * @summary Get followers of a user
  */
-export const GetFollowersParams = zod.object({
+export const ListUserFollowersParams = zod.object({
   "userId": zod.coerce.string()
 })
 
-export const GetFollowersResponseItem = zod.object({
+export const ListUserFollowersResponseItem = zod.object({
   "id": zod.string(),
   "username": zod.string(),
   "display_name": zod.string(),
@@ -86,17 +87,17 @@ export const GetFollowersResponseItem = zod.object({
   "is_following": zod.boolean().optional(),
   "followers_count": zod.number().optional()
 })
-export const GetFollowersResponse = zod.array(GetFollowersResponseItem)
+export const ListUserFollowersResponse = zod.array(ListUserFollowersResponseItem)
 
 
 /**
- * @summary Get users followed by a user
+ * @summary Get users that a user follows
  */
-export const GetFollowingParams = zod.object({
+export const ListUserFollowingParams = zod.object({
   "userId": zod.coerce.string()
 })
 
-export const GetFollowingResponseItem = zod.object({
+export const ListUserFollowingResponseItem = zod.object({
   "id": zod.string(),
   "username": zod.string(),
   "display_name": zod.string(),
@@ -105,20 +106,20 @@ export const GetFollowingResponseItem = zod.object({
   "is_following": zod.boolean().optional(),
   "followers_count": zod.number().optional()
 })
-export const GetFollowingResponse = zod.array(GetFollowingResponseItem)
+export const ListUserFollowingResponse = zod.array(ListUserFollowingResponseItem)
 
 
 /**
- * @summary Update own profile
+ * @summary Update current user profile
  */
-export const UpdateProfileBody = zod.object({
+export const UpdateMyProfileBody = zod.object({
   "display_name": zod.string().optional(),
   "bio": zod.string().optional(),
   "avatar_url": zod.string().optional(),
   "website": zod.string().optional()
 })
 
-export const UpdateProfileResponse = zod.object({
+export const UpdateMyProfileResponse = zod.object({
   "id": zod.string(),
   "username": zod.string(),
   "display_name": zod.string(),
@@ -136,7 +137,7 @@ export const UpdateProfileResponse = zod.object({
 /**
  * @summary Get suggested users to follow
  */
-export const GetSuggestedUsersResponseItem = zod.object({
+export const ListSuggestedUsersResponseItem = zod.object({
   "id": zod.string(),
   "username": zod.string(),
   "display_name": zod.string(),
@@ -145,7 +146,7 @@ export const GetSuggestedUsersResponseItem = zod.object({
   "is_following": zod.boolean().optional(),
   "followers_count": zod.number().optional()
 })
-export const GetSuggestedUsersResponse = zod.array(GetSuggestedUsersResponseItem)
+export const ListSuggestedUsersResponse = zod.array(ListSuggestedUsersResponseItem)
 
 
 /**
@@ -169,6 +170,7 @@ export const ListFeedResponse = zod.object({
   "updated_at": zod.string().nullish(),
   "likes_count": zod.number(),
   "comments_count": zod.number(),
+  "views_count": zod.number(),
   "is_liked": zod.boolean().optional()
 })),
   "next_cursor": zod.string().nullish(),
@@ -177,7 +179,7 @@ export const ListFeedResponse = zod.object({
 
 
 /**
- * @summary Create a new post
+ * @summary Create a post
  */
 export const createPostBodyContentMax = 2200;
 
@@ -190,7 +192,7 @@ export const CreatePostBody = zod.object({
 
 
 /**
- * @summary Get a post by ID
+ * @summary Get a single post
  */
 export const GetPostParams = zod.object({
   "postId": zod.coerce.string()
@@ -213,6 +215,7 @@ export const GetPostResponse = zod.object({
   "updated_at": zod.string().nullish(),
   "likes_count": zod.number(),
   "comments_count": zod.number(),
+  "views_count": zod.number(),
   "is_liked": zod.boolean().optional()
 })
 
@@ -249,6 +252,7 @@ export const UpdatePostResponse = zod.object({
   "updated_at": zod.string().nullish(),
   "likes_count": zod.number(),
   "comments_count": zod.number(),
+  "views_count": zod.number(),
   "is_liked": zod.boolean().optional()
 })
 
@@ -258,6 +262,19 @@ export const UpdatePostResponse = zod.object({
  */
 export const DeletePostParams = zod.object({
   "postId": zod.coerce.string()
+})
+
+
+/**
+ * @summary Record a view on a post
+ */
+export const RecordPostViewParams = zod.object({
+  "postId": zod.coerce.string()
+})
+
+export const RecordPostViewResponse = zod.object({
+  "views_count": zod.number(),
+  "new_view": zod.boolean().optional()
 })
 
 
@@ -445,10 +462,29 @@ export const ListFollowingFeedResponse = zod.object({
   "updated_at": zod.string().nullish(),
   "likes_count": zod.number(),
   "comments_count": zod.number(),
+  "views_count": zod.number(),
   "is_liked": zod.boolean().optional()
 })),
   "next_cursor": zod.string().nullish(),
   "has_more": zod.boolean()
+})
+
+
+/**
+ * @summary Enhance post content using AI
+ */
+export const enhancePostBodyContentMax = 5000;
+
+
+
+export const EnhancePostBody = zod.object({
+  "content": zod.string().min(1).max(enhancePostBodyContentMax),
+  "action": zod.enum(['improve', 'rewrite', 'fix_grammar', 'shorten', 'expand', 'hashtags', 'tone_professional', 'tone_casual', 'engaging'])
+})
+
+export const EnhancePostResponse = zod.object({
+  "result": zod.string(),
+  "action": zod.string().optional()
 })
 
 

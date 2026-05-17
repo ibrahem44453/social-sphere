@@ -10,6 +10,7 @@ import followsRouter from "./routes/follows";
 import notificationsRouter from "./routes/notifications";
 import feedRouter from "./routes/feed";
 import searchRouter from "./routes/search";
+import aiRouter from "./routes/ai";
 
 const app: Express = express();
 
@@ -46,5 +47,6 @@ app.use("/api/follows", followsRouter);
 app.use("/api/notifications", notificationsRouter);
 app.use("/api/feed", feedRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/ai", aiRouter);
 
 export default app;

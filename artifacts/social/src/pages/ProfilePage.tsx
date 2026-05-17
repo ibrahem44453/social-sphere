@@ -8,14 +8,14 @@ import { SkeletonPost, SkeletonProfile } from "@/components/SkeletonPost";
 import {
   useGetUserProfile,
   useListUserPosts,
-  useGetFollowers,
-  useGetFollowing,
+  useListUserFollowers,
+  useListUserFollowing,
   useFollowUser,
   useUnfollowUser,
   getGetUserProfileQueryKey,
   getListUserPostsQueryKey,
-  getGetFollowersQueryKey,
-  getGetFollowingQueryKey,
+  getListUserFollowersQueryKey,
+  getListUserFollowingQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,19 +58,19 @@ export default function ProfilePage() {
     }
   );
 
-  const { data: followers } = useGetFollowers(profile?.id ?? "", {
+  const { data: followers } = useListUserFollowers(profile?.id ?? "", {
     request: { headers },
     query: {
       enabled: !!profile?.id && tab === "followers",
-      queryKey: getGetFollowersQueryKey(profile?.id ?? ""),
+      queryKey: getListUserFollowersQueryKey(profile?.id ?? ""),
     },
   });
 
-  const { data: following } = useGetFollowing(profile?.id ?? "", {
+  const { data: following } = useListUserFollowing(profile?.id ?? "", {
     request: { headers },
     query: {
       enabled: !!profile?.id && tab === "following",
-      queryKey: getGetFollowingQueryKey(profile?.id ?? ""),
+      queryKey: getListUserFollowingQueryKey(profile?.id ?? ""),
     },
   });
 

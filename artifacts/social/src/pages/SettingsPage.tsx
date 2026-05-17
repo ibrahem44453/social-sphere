@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
-  useUpdateProfile,
+  useUpdateMyProfile,
   getGetUserProfileQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,7 +45,7 @@ export default function SettingsPage() {
     },
   });
 
-  const updateProfile = useUpdateProfile({
+  const updateProfile = useUpdateMyProfile({
     request: { headers },
     mutation: {
       onSuccess: () => {

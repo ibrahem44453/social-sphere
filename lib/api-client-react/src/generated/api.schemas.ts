@@ -56,6 +56,7 @@ export interface Post {
   updated_at?: string | null;
   likes_count: number;
   comments_count: number;
+  views_count: number;
   is_liked?: boolean;
 }
 
@@ -104,6 +105,11 @@ export interface LikeResult {
   likes_count: number;
 }
 
+export interface ViewResult {
+  views_count: number;
+  new_view?: boolean;
+}
+
 export interface FollowResult {
   following: boolean;
   followers_count: number;
@@ -146,6 +152,35 @@ export interface MarkReadResult {
 
 export interface UnreadCount {
   count: number;
+}
+
+export type AiEnhanceInputAction = typeof AiEnhanceInputAction[keyof typeof AiEnhanceInputAction];
+
+
+export const AiEnhanceInputAction = {
+  improve: 'improve',
+  rewrite: 'rewrite',
+  fix_grammar: 'fix_grammar',
+  shorten: 'shorten',
+  expand: 'expand',
+  hashtags: 'hashtags',
+  tone_professional: 'tone_professional',
+  tone_casual: 'tone_casual',
+  engaging: 'engaging',
+} as const;
+
+export interface AiEnhanceInput {
+  /**
+     * @minLength 1
+     * @maxLength 5000
+     */
+  content: string;
+  action: AiEnhanceInputAction;
+}
+
+export interface AiEnhanceResult {
+  result: string;
+  action?: string;
 }
 
 export type FindUsersParams = {

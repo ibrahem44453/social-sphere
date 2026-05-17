@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { UserAvatar } from "@/components/UserAvatar";
 import { SkeletonUser } from "@/components/SkeletonPost";
 import {
-  useGetSuggestedUsers,
+  useListSuggestedUsers,
   useFindUsers,
   useFollowUser,
   useUnfollowUser,
-  getGetSuggestedUsersQueryKey,
+  getListSuggestedUsersQueryKey,
   getFindUsersQueryKey,
   getGetUserProfileQueryKey,
 } from "@workspace/api-client-react";
@@ -106,9 +106,9 @@ export default function ExplorePage() {
   const [query, setQuery] = useState("");
   const headers = user ? { "x-user-id": user.id } : undefined;
 
-  const { data: suggested, isLoading: suggestedLoading } = useGetSuggestedUsers({
+  const { data: suggested, isLoading: suggestedLoading } = useListSuggestedUsers({
     request: { headers },
-    query: { queryKey: getGetSuggestedUsersQueryKey() },
+    query: { queryKey: getListSuggestedUsersQueryKey() },
   });
 
   const { data: searchResults, isLoading: searchLoading } = useFindUsers(

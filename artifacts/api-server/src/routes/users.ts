@@ -5,10 +5,10 @@ import { eq, sql, and, ilike, or, ne } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import {
   GetUserProfileParams,
-  UpdateProfileBody,
+  UpdateMyProfileBody,
   ListUserPostsParams,
-  GetFollowersParams,
-  GetFollowingParams,
+  ListUserFollowersParams,
+  ListUserFollowingParams,
 } from "@workspace/api-zod";
 
 const router = Router();
@@ -70,7 +70,7 @@ router.patch("/me/profile", async (req, res) => {
   const userId = getUserId(req);
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-  const parsed = UpdateProfileBody.safeParse(req.body);
+  const parsed = UpdateMyProfileBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid body" });
 
   const updates: Record<string, unknown> = {};
@@ -154,6 +154,7 @@ router.get("/:userId/posts", async (req, res) => {
         ...post,
         likes_count: lc?.count ?? 0,
         comments_count: cc?.count ?? 0,
+        views_count: post.views_count ?? 0,
         is_liked,
         author: { id: author.id, username: author.username, display_name: author.display_name, avatar_url: author.avatar_url, bio: author.bio, is_following: false, followers_count: afc?.count ?? 0 },
       };
@@ -164,7 +165,7 @@ router.get("/:userId/posts", async (req, res) => {
 });
 
 router.get("/:userId/followers", async (req, res) => {
-  const parsed = GetFollowersParams.safeParse(req.params);
+  const parsed = ListUserFollowersParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid" });
   const { userId } = parsed.data;
   const currentUserId = getUserId(req);
@@ -187,7 +188,7 @@ router.get("/:userId/followers", async (req, res) => {
 });
 
 router.get("/:userId/following", async (req, res) => {
-  const parsed = GetFollowingParams.safeParse(req.params);
+  const parsed = ListUserFollowingParams.safeParse(req.params);
   if (!parsed.success) return res.status(400).json({ error: "Invalid" });
   const { userId } = parsed.data;
   const currentUserId = getUserId(req);

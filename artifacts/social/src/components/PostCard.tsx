@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Heart, MessageCircle, MoreHorizontal, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, MoreHorizontal, Trash2, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { UserAvatar } from "./UserAvatar";
 import { timeAgo, cn } from "@/lib/utils";
@@ -21,6 +21,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+  return String(n);
+}
 
 interface PostCardProps {
   post: Post;
@@ -91,9 +97,10 @@ export function PostCard({ post, onCommentClick, showActions = true }: PostCardP
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border-b border-border py-4 px-4 hover:bg-white/[0.02] transition-colors"
+      className="border-b border-border py-4 px-4 hover:bg-white/[0.02] transition-colors cursor-pointer"
+      onClick={onCommentClick}
     >
-      <div className="flex gap-3">
+      <div className="flex gap-3" onClick={(e) => e.stopPropagation()}>
         <Link href={`/profile/${post.author?.username}`}>
           <UserAvatar
             username={post.author?.username ?? ""}
@@ -118,7 +125,10 @@ export function PostCard({ post, onCommentClick, showActions = true }: PostCardP
             {isOwner && showActions && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-accent transition-colors">
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-accent transition-colors"
+                  >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </DropdownMenuTrigger>
@@ -135,7 +145,10 @@ export function PostCard({ post, onCommentClick, showActions = true }: PostCardP
             )}
           </div>
 
-          <p className="text-sm mt-1.5 text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
+          <p
+            className="text-sm mt-1.5 text-foreground/90 leading-relaxed whitespace-pre-wrap break-words"
+            onClick={onCommentClick}
+          >
             {post.content}
           </p>
 
@@ -152,7 +165,7 @@ export function PostCard({ post, onCommentClick, showActions = true }: PostCardP
           {showActions && (
             <div className="flex items-center gap-5 mt-3">
               <button
-                onClick={handleLike}
+                onClick={(e) => { e.stopPropagation(); handleLike(); }}
                 className={cn(
                   "flex items-center gap-1.5 text-sm transition-all",
                   liked ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
@@ -164,15 +177,21 @@ export function PostCard({ post, onCommentClick, showActions = true }: PostCardP
                 >
                   <Heart className={cn("w-4 h-4 transition-all", liked && "fill-current")} />
                 </motion.div>
-                <span>{likeCount}</span>
+                <span>{formatCount(likeCount)}</span>
               </button>
+
               <button
-                onClick={onCommentClick}
+                onClick={(e) => { e.stopPropagation(); onCommentClick?.(); }}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>{post.comments_count}</span>
+                <span>{formatCount(post.comments_count)}</span>
               </button>
+
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground ml-auto">
+                <Eye className="w-4 h-4" />
+                <span>{formatCount(post.views_count ?? 0)}</span>
+              </div>
             </div>
           )}
         </div>

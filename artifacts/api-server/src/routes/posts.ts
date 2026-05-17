@@ -1,6 +1,14 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, followsTable, postsTable, likesTable, commentsTable, notificationsTable } from "@workspace/db";
+import {
+  usersTable,
+  followsTable,
+  postsTable,
+  postViewsTable,
+  likesTable,
+  commentsTable,
+  notificationsTable,
+} from "@workspace/db";
 import { eq, sql, and, desc, inArray } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import {
@@ -15,6 +23,7 @@ import {
   CreateCommentParams,
   CreateCommentBody,
   DeleteCommentParams,
+  RecordPostViewParams,
 } from "@workspace/api-zod";
 
 const router = Router();
@@ -46,6 +55,7 @@ async function buildPost(post: any, currentUserId: string | null) {
     updated_at: post.updated_at,
     likes_count: lc?.count ?? 0,
     comments_count: cc?.count ?? 0,
+    views_count: post.views_count ?? 0,
     is_liked,
     author: author ? {
       id: author.id,
@@ -78,6 +88,7 @@ router.post("/", async (req, res) => {
     content: parsed.data.content,
     image_url: parsed.data.image_url ?? null,
     author_id: userId,
+    views_count: 0,
   }).returning();
 
   const built = await buildPost(post[0], userId);
@@ -91,6 +102,59 @@ router.get("/:postId", async (req, res) => {
   const [post] = await db.select().from(postsTable).where(eq(postsTable.id, parsed.data.postId));
   if (!post) return res.status(404).json({ error: "Not found" });
   return res.json(await buildPost(post, currentUserId));
+});
+
+// Record a post view — anti-spam: only count once per user per hour
+router.post("/:postId/view", async (req, res) => {
+  const parsed = RecordPostViewParams.safeParse(req.params);
+  if (!parsed.success) return res.status(400).json({ error: "Invalid" });
+  const { postId } = parsed.data;
+  const viewerId = getUserId(req);
+  if (!viewerId) return res.status(401).json({ error: "Unauthorized" });
+
+  const [post] = await db.select().from(postsTable).where(eq(postsTable.id, postId));
+  if (!post) return res.status(404).json({ error: "Not found" });
+
+  // Check if this viewer already viewed this post recently (within 1 hour)
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const [existing] = await db
+    .select()
+    .from(postViewsTable)
+    .where(and(eq(postViewsTable.post_id, postId), eq(postViewsTable.viewer_id, viewerId)));
+
+  let isNewView = false;
+
+  if (!existing) {
+    // Brand new view — insert and increment
+    await db.insert(postViewsTable).values({
+      post_id: postId,
+      viewer_id: viewerId,
+      last_viewed_at: new Date(),
+    }).onConflictDoNothing();
+
+    await db
+      .update(postsTable)
+      .set({ views_count: sql`${postsTable.views_count} + 1` })
+      .where(eq(postsTable.id, postId));
+
+    isNewView = true;
+  } else if (existing.last_viewed_at < oneHourAgo) {
+    // Revisiting after 1 hour — count as new view
+    await db
+      .update(postViewsTable)
+      .set({ last_viewed_at: new Date() })
+      .where(and(eq(postViewsTable.post_id, postId), eq(postViewsTable.viewer_id, viewerId)));
+
+    await db
+      .update(postsTable)
+      .set({ views_count: sql`${postsTable.views_count} + 1` })
+      .where(eq(postsTable.id, postId));
+
+    isNewView = true;
+  }
+
+  const [updated] = await db.select({ views_count: postsTable.views_count }).from(postsTable).where(eq(postsTable.id, postId));
+  return res.json({ views_count: updated?.views_count ?? 0, new_view: isNewView });
 });
 
 router.patch("/:postId", async (req, res) => {

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { PostCard } from "@/components/PostCard";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -9,6 +9,7 @@ import {
   useGetPost,
   useGetComments,
   useCreateComment,
+  useRecordPostView,
   getGetCommentsQueryKey,
   getGetPostQueryKey,
 } from "@workspace/api-client-react";
@@ -16,12 +17,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { timeAgo } from "@/lib/utils";
 
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+  return String(n);
+}
+
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [comment, setComment] = useState("");
+  const [viewCount, setViewCount] = useState<number | null>(null);
 
   const headers = user ? { "x-user-id": user.id } : undefined;
 
@@ -40,6 +48,22 @@ export default function PostDetailPage() {
       queryKey: getGetCommentsQueryKey(postId!),
     },
   });
+
+  const recordView = useRecordPostView({
+    request: { headers },
+    mutation: {
+      onSuccess: (data) => {
+        setViewCount(data.views_count);
+      },
+    },
+  });
+
+  // Record view when post loads (once per mount)
+  useEffect(() => {
+    if (post && user && postId) {
+      recordView.mutate({ postId });
+    }
+  }, [post?.id, user?.id]);
 
   const createComment = useCreateComment({
     request: { headers },
@@ -61,6 +85,8 @@ export default function PostDetailPage() {
   const username = user?.user_metadata?.username || user?.email?.split("@")[0] || "me";
   const displayName = user?.user_metadata?.display_name || username;
 
+  const displayViewCount = viewCount ?? post?.views_count ?? 0;
+
   return (
     <div className="max-w-[600px] mx-auto">
       <div className="sticky top-0 z-10 glass border-b border-border px-4 py-3 flex items-center gap-3">
@@ -71,12 +97,18 @@ export default function PostDetailPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <span className="font-semibold">Post</span>
+
+        {/* View count in header */}
+        <div className="ml-auto flex items-center gap-1.5 text-muted-foreground text-sm">
+          <Eye className="w-4 h-4" />
+          <span>{formatCount(displayViewCount)} views</span>
+        </div>
       </div>
 
       {postLoading ? (
         <SkeletonPost />
       ) : post ? (
-        <PostCard post={post} showActions onCommentClick={() => {}} />
+        <PostCard post={{ ...post, views_count: displayViewCount }} showActions onCommentClick={() => {}} />
       ) : (
         <div className="text-center py-20 text-muted-foreground">Post not found</div>
       )}
