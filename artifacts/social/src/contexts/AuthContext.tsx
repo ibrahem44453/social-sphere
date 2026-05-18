@@ -8,7 +8,13 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
-  signup: (email: string, password: string, username: string, displayName: string) => Promise<{ error: string | null }>;
+  signup: (
+    email: string,
+    password: string,
+    username: string,
+    displayName: string
+  ) => Promise<{ error: string | null }>;
+  loginWithGoogle: () => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
 }
 
@@ -21,14 +27,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function syncUser(u: User) {
     try {
+      const username =
+        u.user_metadata?.username ??
+        u.email?.split("@")[0]?.toLowerCase().replace(/[^a-z0-9_]/g, "_") ??
+        "user";
+      const display_name =
+        u.user_metadata?.display_name ??
+        u.user_metadata?.full_name ??
+        u.user_metadata?.name ??
+        username;
+
       await fetch(apiUrl("/auth/sync-user"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: u.id,
           email: u.email,
-          username: u.user_metadata?.username,
-          display_name: u.user_metadata?.display_name,
+          username,
+          display_name,
         }),
       });
     } catch {
@@ -44,7 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) syncUser(session.user);
@@ -54,16 +72,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) return { error: error.message };
     return { error: null };
   };
 
-  const signup = async (email: string, password: string, username: string, displayName: string) => {
+  const signup = async (
+    email: string,
+    password: string,
+    username: string,
+    displayName: string
+  ) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username, display_name: displayName } },
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
+  const loginWithGoogle = async () => {
+    const baseUrl = (import.meta.env.BASE_URL as string)?.replace(/\/$/, "") || "";
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}${baseUrl}/`,
+      },
     });
     if (error) return { error: error.message };
     return { error: null };
@@ -74,7 +112,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, login, signup, loginWithGoogle, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

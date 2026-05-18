@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Globe } from "lucide-react";
+import { ArrowLeft, Globe, Calendar, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PostCard } from "@/components/PostCard";
@@ -77,9 +77,13 @@ export default function ProfilePage() {
   const [localFollowing, setLocalFollowing] = useState<boolean | null>(null);
   const [localFollowCount, setLocalFollowCount] = useState<number | null>(null);
   const isFollowing =
-    localFollowing !== null ? localFollowing : (profile?.is_following ?? false);
+    localFollowing !== null
+      ? localFollowing
+      : (profile?.is_following ?? false);
   const followCount =
-    localFollowCount !== null ? localFollowCount : (profile?.followers_count ?? 0);
+    localFollowCount !== null
+      ? localFollowCount
+      : (profile?.followers_count ?? 0);
 
   const followUser = useFollowUser({
     request: { headers },
@@ -128,14 +132,23 @@ export default function ProfilePage() {
 
   if (!profile)
     return (
-      <div className="text-center py-20 text-muted-foreground">User not found</div>
+      <div className="text-center py-20 text-muted-foreground">
+        User not found
+      </div>
     );
 
-  const tabs: { id: TabType; label: string }[] = [
-    { id: "posts", label: "Posts" },
+  const tabs: { id: TabType; label: string; count?: number }[] = [
+    { id: "posts", label: "Posts", count: postsData?.posts?.length },
     { id: "followers", label: "Followers" },
     { id: "following", label: "Following" },
   ];
+
+  const joinedDate = profile.created_at
+    ? new Date(profile.created_at).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   return (
     <div className="max-w-[600px] mx-auto">
@@ -147,7 +160,9 @@ export default function ProfilePage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <span className="font-semibold block">{profile.display_name}</span>
+          <span className="font-bold block leading-tight">
+            {profile.display_name}
+          </span>
           <span className="text-xs text-muted-foreground">
             {postsData?.posts?.length ?? 0} posts
           </span>
@@ -155,70 +170,94 @@ export default function ProfilePage() {
       </div>
 
       <div className="relative">
-        <div className="h-24 bg-gradient-to-br from-violet-900/40 via-indigo-900/30 to-background" />
+        <div className="h-32 bg-gradient-to-br from-violet-900/50 via-purple-900/30 to-indigo-900/40 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(259_94%_61%_/_0.3),_transparent_70%)]" />
+        </div>
         <div className="px-4 pb-4">
-          <div className="flex items-end justify-between -mt-8 mb-4">
+          <div className="flex items-end justify-between -mt-10 mb-4">
             <UserAvatar
               username={profile.username}
               displayName={profile.display_name}
               avatarUrl={profile.avatar_url}
               size="xl"
-              className="border-4 border-background"
+              className="border-4 border-background ring-2 ring-primary/20"
             />
-            {!isOwnProfile && user && (
-              <button
-                onClick={() =>
-                  isFollowing
-                    ? unfollowUser.mutate({ targetUserId: profile.id })
-                    : followUser.mutate({ targetUserId: profile.id })
-                }
-                className={cn(
-                  "px-5 py-1.5 rounded-full text-sm font-semibold transition-all",
-                  isFollowing
-                    ? "border border-border text-foreground hover:border-destructive hover:text-destructive"
-                    : "bg-foreground text-background hover:bg-foreground/90"
-                )}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </button>
-            )}
-            {isOwnProfile && (
-              <button
-                onClick={() => setLocation("/settings")}
-                className="px-5 py-1.5 rounded-full text-sm font-semibold border border-border hover:bg-accent transition-colors"
-              >
-                Edit profile
-              </button>
-            )}
+            <div className="flex gap-2 mb-1">
+              {!isOwnProfile && user && (
+                <button
+                  onClick={() =>
+                    isFollowing
+                      ? unfollowUser.mutate({ targetUserId: profile.id })
+                      : followUser.mutate({ targetUserId: profile.id })
+                  }
+                  disabled={followUser.isPending || unfollowUser.isPending}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-sm font-semibold transition-all disabled:opacity-50",
+                    isFollowing
+                      ? "border border-border text-foreground hover:border-destructive hover:text-destructive bg-background"
+                      : "bg-foreground text-background hover:bg-foreground/90"
+                  )}
+                >
+                  {isFollowing ? "Following" : "Follow"}
+                </button>
+              )}
+              {isOwnProfile && (
+                <button
+                  onClick={() => setLocation("/settings")}
+                  className="px-5 py-2 rounded-full text-sm font-semibold border border-border hover:bg-accent transition-colors bg-background"
+                >
+                  Edit profile
+                </button>
+              )}
+            </div>
           </div>
 
-          <h1 className="text-xl font-bold">{profile.display_name}</h1>
+          <h1 className="text-xl font-bold leading-tight">{profile.display_name}</h1>
           <p className="text-muted-foreground text-sm">@{profile.username}</p>
+
           {profile.bio && (
             <p className="mt-3 text-sm text-foreground/90 leading-relaxed">
               {profile.bio}
             </p>
           )}
-          {profile.website && (
-            <a
-              href={profile.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 flex items-center gap-1.5 text-primary text-sm hover:underline w-fit"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              {profile.website.replace(/^https?:\/\//, "")}
-            </a>
-          )}
+
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 mt-3">
+            {profile.website && (
+              <a
+                href={profile.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-primary text-sm hover:underline"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                {profile.website.replace(/^https?:\/\//, "")}
+              </a>
+            )}
+            {joinedDate && (
+              <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+                <Calendar className="w-3.5 h-3.5" />
+                Joined {joinedDate}
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center gap-5 mt-4 text-sm">
-            <button onClick={() => setTab("following")} className="hover:underline">
-              <span className="font-bold text-foreground">
+            <button
+              onClick={() => setTab("following")}
+              className="hover:underline group"
+            >
+              <span className="font-bold text-foreground group-hover:text-primary transition-colors">
                 {profile.following_count}
               </span>
               <span className="text-muted-foreground ml-1">Following</span>
             </button>
-            <button onClick={() => setTab("followers")} className="hover:underline">
-              <span className="font-bold text-foreground">{followCount}</span>
+            <button
+              onClick={() => setTab("followers")}
+              className="hover:underline group"
+            >
+              <span className="font-bold text-foreground group-hover:text-primary transition-colors">
+                {followCount}
+              </span>
               <span className="text-muted-foreground ml-1">Followers</span>
             </button>
           </div>
@@ -255,8 +294,16 @@ export default function ProfilePage() {
           {postsLoading ? (
             Array.from({ length: 3 }).map((_, i) => <SkeletonPost key={i} />)
           ) : !postsData?.posts?.length ? (
-            <div className="text-center py-16 text-muted-foreground text-sm">
-              No posts yet
+            <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+              <div className="w-14 h-14 rounded-full bg-muted/40 flex items-center justify-center mb-4 text-2xl">
+                📝
+              </div>
+              <h3 className="font-semibold mb-2">No posts yet</h3>
+              <p className="text-sm text-muted-foreground">
+                {isOwnProfile
+                  ? "Share something with your followers."
+                  : `${profile.display_name} hasn't posted yet.`}
+              </p>
             </div>
           ) : (
             postsData.posts.map((post) => (
@@ -274,10 +321,10 @@ export default function ProfilePage() {
         <div>
           {!followers ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              Loading...
+              Loading…
             </div>
           ) : followers.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
+            <div className="text-center py-16 text-muted-foreground text-sm">
               No followers yet
             </div>
           ) : (
@@ -285,7 +332,7 @@ export default function ProfilePage() {
               <button
                 key={u.id}
                 onClick={() => setLocation(`/profile/${u.username}`)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/50 transition-colors border-b border-border"
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 transition-colors border-b border-border"
               >
                 <UserAvatar
                   username={u.username}
@@ -295,7 +342,9 @@ export default function ProfilePage() {
                 />
                 <div className="text-left">
                   <p className="font-semibold text-sm">{u.display_name}</p>
-                  <p className="text-muted-foreground text-xs">@{u.username}</p>
+                  <p className="text-muted-foreground text-xs">
+                    @{u.username}
+                  </p>
                 </div>
               </button>
             ))
@@ -307,10 +356,10 @@ export default function ProfilePage() {
         <div>
           {!following ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              Loading...
+              Loading…
             </div>
           ) : following.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
+            <div className="text-center py-16 text-muted-foreground text-sm">
               Not following anyone yet
             </div>
           ) : (
@@ -318,7 +367,7 @@ export default function ProfilePage() {
               <button
                 key={u.id}
                 onClick={() => setLocation(`/profile/${u.username}`)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/50 transition-colors border-b border-border"
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/30 transition-colors border-b border-border"
               >
                 <UserAvatar
                   username={u.username}
@@ -328,7 +377,9 @@ export default function ProfilePage() {
                 />
                 <div className="text-left">
                   <p className="font-semibold text-sm">{u.display_name}</p>
-                  <p className="text-muted-foreground text-xs">@{u.username}</p>
+                  <p className="text-muted-foreground text-xs">
+                    @{u.username}
+                  </p>
                 </div>
               </button>
             ))

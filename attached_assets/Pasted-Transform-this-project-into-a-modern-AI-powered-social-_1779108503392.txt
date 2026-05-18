@@ -1,0 +1,143 @@
+Transform this project into a modern AI-powered social media platform similar to X/Twitter + Instagram.
+
+You must fully improve the entire app frontend, backend, authentication system, AI features, post system, media system, responsiveness, and production readiness.
+
+MAIN FEATURES TO ADD:
+
+1. GOOGLE AUTH
+
+* Add real Google OAuth login/signup
+* When user clicks “Continue with Google”, show all available Google accounts
+* Secure authentication flow
+* Persistent login sessions
+* Logout support
+* User profile sync from Google
+* Store avatar, email, username
+
+2. IMAGE POSTS
+
+* Users can upload images with posts
+* Multiple images per post
+* Image preview before posting
+* Drag & drop uploads
+* Mobile image upload support
+* Responsive image gallery inside posts
+* Optimize image loading
+* Support dark mode UI
+
+3. AI FEATURES
+   Create a powerful AI assistant system inside the app:
+
+A) AI POST GENERATOR
+
+* User enters a topic
+* AI generates full social media posts
+
+B) AI POST IMPROVER
+
+* Improve grammar
+* Improve engagement
+* Improve formatting
+* Rewrite professionally
+
+C) AI CAPTION GENERATOR
+
+* Generate captions automatically
+
+D) AI HASHTAG GENERATOR
+
+* Generate relevant hashtags
+
+E) AI CONTENT IDEAS
+
+* Suggest viral post ideas
+* Suggest trending content
+
+F) AI COMMENT SUGGESTIONS
+
+* Smart AI reply suggestions
+
+G) AI EDITOR
+
+* Edit existing posts with AI
+
+4. UI/UX IMPROVEMENTS
+
+* Modern premium dark UI
+* Smooth animations
+* Mobile-first responsive design
+* Professional sidebar
+* Modern feed
+* Better profile pages
+* Better notifications page
+* Beautiful modals
+* Better typography
+* Better spacing
+* Better cards
+* Better loading states
+* Skeleton loaders
+* Toast notifications
+
+5. PERFORMANCE
+
+* Optimize frontend performance
+* Lazy loading
+* Optimize images
+* Better API structure
+* Reduce unnecessary renders
+
+6. BACKEND FIXES
+
+* Fix all API issues
+* Fix all TypeScript issues
+* Fix all monorepo issues
+* Fix all workspace build issues
+* Fix Vercel deployment issues
+* Ensure pnpm workspace compatibility
+* Ensure production-ready builds
+
+7. DATABASE
+
+* Add proper tables for:
+
+  * images
+  * AI generations
+  * post media
+  * user sessions
+* Fix relations and schema issues
+
+8. DEPLOYMENT
+
+* Ensure project builds successfully on:
+
+  * Vercel
+  * Node.js 20+
+  * pnpm 10
+* Remove all build errors
+* Remove all TS errors
+* Remove all workspace build issues
+
+9. SECURITY
+
+* Validate uploads
+* Secure auth flow
+* Environment variable validation
+* Secure API routes
+
+10. FINAL REQUIREMENTS
+
+* Run full production build
+* Ensure zero TypeScript errors
+* Ensure zero ESLint errors
+* Ensure successful pnpm build
+* Ensure successful Vercel deployment
+
+IMPORTANT:
+Do NOT stop at partial fixes.
+You must fully implement all requested features and ensure the app is production-ready and deployable.
+After finishing:
+
+* run all builds
+* fix all errors automatically
+* commit all changes
+* push to GitHub

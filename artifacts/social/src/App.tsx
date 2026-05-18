@@ -1,9 +1,7 @@
-import { useEffect } from "react";
 import {
   Switch,
   Route,
   Router as WouterRouter,
-  useLocation,
   Redirect,
 } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
+import { RightPanel } from "@/components/RightPanel";
 import AuthPage from "@/pages/AuthPage";
 import FeedPage from "@/pages/FeedPage";
 import PostDetailPage from "@/pages/PostDetailPage";
@@ -22,8 +21,6 @@ import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/not-found";
 import { setBaseUrl } from "@workspace/api-client-react";
 
-// Generated API URLs already include /api/ prefix (e.g. /api/posts).
-// setBaseUrl prepends to those paths, so we only pass the base path — NOT /api.
 const BASE = (import.meta.env.BASE_URL as string)?.replace(/\/$/, "") || "";
 setBaseUrl(BASE);
 
@@ -53,13 +50,20 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background flex">
-      <div className="hidden md:flex">
-        <Sidebar />
+    <div className="min-h-screen bg-background">
+      <div className="max-w-[1300px] mx-auto flex">
+        <div className="hidden md:flex shrink-0">
+          <Sidebar />
+        </div>
+        <main className="flex-1 min-w-0 pb-16 md:pb-0 border-x border-border min-h-screen">
+          {children}
+        </main>
+        <div className="hidden xl:block w-[360px] shrink-0 px-4 py-4">
+          <div className="sticky top-4">
+            <RightPanel />
+          </div>
+        </div>
       </div>
-      <main className="flex-1 min-w-0 pb-16 md:pb-0 border-x border-border">
-        {children}
-      </main>
       <MobileNav />
     </div>
   );
