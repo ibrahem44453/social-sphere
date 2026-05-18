@@ -1,4 +1,4 @@
-```ts
+
 import express, { type Express } from "express";
 import cors from "cors";
 import { logger } from "./lib/logger";
@@ -31,4 +31,4 @@ app.use("/api/search", searchRouter);
 app.use("/api/ai", aiRouter);
 
 export default app;
-```;
+
