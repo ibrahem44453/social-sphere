@@ -1,0 +1,186 @@
+I imported this monorepo project from GitHub and it currently fails to deploy on Vercel.
+
+Your task is to deeply inspect the ENTIRE repository, identify ALL existing and hidden issues, and automatically repair everything until the project becomes fully production-ready and deploys successfully on Vercel without errors.
+
+==================================================
+CURRENT KNOWN ISSUES
+====================
+
+The project currently has multiple critical issues including:
+
+1. TypeScript build failures:
+
+* TS6305 declaration output errors
+* TS7006 implicit any errors
+* TS2339 request typing issues
+* broken type declarations
+* missing generated dist files
+
+2. pnpm workspace problems:
+
+* internal packages are not building correctly
+* workspace dependency references are broken
+* recursive build failures
+* missing package build scripts
+
+3. Monorepo package issues:
+   Packages:
+
+* packages/db
+* packages/api-zod
+* packages/integrations-openai-ai-server
+
+Problems:
+
+* missing dist outputs
+* missing declaration generation
+* invalid tsconfig setup
+* invalid package exports
+* missing build pipeline
+
+4. Vercel deployment failures:
+
+* frozen lockfile issues
+* build crashes
+* vite config crashing during build
+* PORT environment variable required during build
+* invalid build ordering
+* dependency graph problems
+* missing outputs during deployment
+
+5. General codebase problems:
+
+* broken imports
+* unstable architecture
+* missing typings
+* inconsistent configs
+* possible runtime crashes
+* bad responsiveness
+* mobile layout issues
+* overlapping UI elements
+* weak error handling
+
+==================================================
+YOUR JOB
+========
+
+Automatically:
+
+* inspect every folder
+* inspect every package
+* inspect every config
+* inspect every script
+* inspect every dependency
+* inspect all build systems
+* inspect all tsconfigs
+* inspect all vite configs
+* inspect all API/server configs
+
+Then:
+
+* detect ALL additional hidden problems
+* fix ALL issues automatically
+* refactor where necessary
+* stabilize the architecture
+* optimize the project professionally
+
+==================================================
+REQUIRED RESULT
+===============
+
+The final project MUST:
+
+* run locally without issues
+* pass full typecheck
+* pass full build
+* work with pnpm workspaces correctly
+* build all internal packages correctly
+* generate declaration files correctly
+* deploy successfully on Vercel
+* have zero TypeScript errors
+* have zero build failures
+* have zero deployment crashes
+
+==================================================
+MONOREPO REQUIREMENTS
+=====================
+
+Ensure each internal package:
+
+* builds independently
+* generates dist/
+* generates .d.ts files
+* has valid package.json
+* has valid tsconfig.json
+* exports correctly
+* works with pnpm workspaces
+
+Fix ALL TS6305 declaration issues completely.
+
+==================================================
+VERCEL REQUIREMENTS
+===================
+
+This project WILL be deployed on Vercel.
+
+You MUST ensure:
+
+* no build-time crashes
+* no environment variable crashes
+* no PORT requirement during build
+* no recursive workspace failures
+* no frozen lockfile issues
+* no invalid output structure
+* no vite startup during build phase
+* compatibility with Node.js 20+
+
+Generate and configure:
+
+* vercel.json
+* .env.example
+* production-safe scripts
+
+==================================================
+UI/UX REQUIREMENTS
+==================
+
+Fix all frontend issues:
+
+* responsiveness
+* mobile layouts
+* overlapping components
+* broken spacing
+* sidebar responsiveness
+* feed responsiveness
+* modal responsiveness
+* profile page layout
+* notifications layout
+
+Keep the UI:
+
+* dark
+* modern
+* futuristic
+* clean
+* premium quality
+
+==================================================
+FINAL INSTRUCTIONS
+==================
+
+Do NOT stop after partial fixes.
+
+Continue working until:
+
+1. all builds succeed
+2. all packages compile
+3. all TypeScript errors are fixed
+4. Vercel deployment is fully stable
+5. the project is production-ready
+
+At the end:
+
+* run full typecheck
+* run full build
+* verify successful completion
+* verify Vercel compatibility

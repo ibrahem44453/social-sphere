@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { EnhancePostBody } from "@workspace/api-zod";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -50,7 +51,7 @@ router.post("/enhance", async (req, res) => {
     const result = completion.choices[0]?.message?.content?.trim() ?? "";
     return res.json({ result, action });
   } catch (err) {
-    req.log.error({ err }, "AI enhance failed");
+    logger.error({ err }, "AI enhance failed");
     return res.status(500).json({ error: "AI enhancement failed" });
   }
 });
