@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
+import {
+  Switch,
+  Route,
+  Router as WouterRouter,
+  useLocation,
+  Redirect,
+} from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -61,6 +67,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
 
 function RootRedirect() {
   const { user, loading } = useAuth();
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -68,6 +75,7 @@ function RootRedirect() {
       </div>
     );
   }
+
   if (user) return <Redirect to="/feed" />;
   return <AuthPage />;
 }
@@ -76,36 +84,55 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={RootRedirect} />
+
       <Route path="/feed">
         <ProtectedRoute>
-          <AppShell><FeedPage /></AppShell>
+          <AppShell>
+            <FeedPage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route path="/post/:postId">
         <ProtectedRoute>
-          <AppShell><PostDetailPage /></AppShell>
+          <AppShell>
+            <PostDetailPage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route path="/profile/:username">
         <ProtectedRoute>
-          <AppShell><ProfilePage /></AppShell>
+          <AppShell>
+            <ProfilePage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route path="/explore">
         <ProtectedRoute>
-          <AppShell><ExplorePage /></AppShell>
+          <AppShell>
+            <ExplorePage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route path="/notifications">
         <ProtectedRoute>
-          <AppShell><NotificationsPage /></AppShell>
+          <AppShell>
+            <NotificationsPage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route path="/settings">
         <ProtectedRoute>
-          <AppShell><SettingsPage /></AppShell>
+          <AppShell>
+            <SettingsPage />
+          </AppShell>
         </ProtectedRoute>
       </Route>
+
       <Route component={NotFound} />
     </Switch>
   );
