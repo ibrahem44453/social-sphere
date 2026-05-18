@@ -4,10 +4,25 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./batch": "./src/batch/index.ts",
-    "./image": "./src/image/index.ts",
-    "./audio": "./src/audio/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./batch": {
+      "types": "./dist/batch/index.d.ts",
+      "default": "./src/batch/index.ts"
+    },
+    "./image": {
+      "types": "./dist/image/index.d.ts",
+      "default": "./src/image/index.ts"
+    },
+    "./audio": {
+      "types": "./dist/audio/index.d.ts",
+      "default": "./src/audio/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "openai": "^6.27.0",

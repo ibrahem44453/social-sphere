@@ -4,8 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./audio": "./src/audio/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./audio": {
+      "types": "./dist/audio/index.d.ts",
+      "default": "./src/audio/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
   },
   "peerDependencies": {
     "react": ">=18"
