@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+
   "scripts": {
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
 
-    "build": "pnpm --filter @workspace/db build && pnpm --filter @workspace/api-zod build && pnpm --filter @workspace/integrations-openai-ai-server build && tsc -p tsconfig.json && node ./build.mjs",
+    "build": "node ./build.mjs",
 
     "start": "node --enable-source-maps ./dist/index.mjs",
 
